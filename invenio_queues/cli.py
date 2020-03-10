@@ -56,9 +56,9 @@ def declare(queues):
 @click.argument('queues', nargs=-1)
 @click.option('--force', is_flag=True, default=False)
 @with_appcontext
-def purge_queues(force, queues=None):
+def purge_queues(force=False, queues=None):
     """Purge the given queues."""
-    current_queues.purge(force, queues=queues)
+    current_queues.purge(force=force, queues=queues)
     click.secho(
         'Queues {} have been purged.'.format(
             queues or current_queues.queues.keys()),

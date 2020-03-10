@@ -58,7 +58,7 @@ class _InvenioQueuesState(object):
         """Delete queue for all or specific event types."""
         self._action('delete', **kwargs)
 
-    def purge(self, force, **kwargs):
+    def purge(self, force=False, **kwargs):
         """Purge queue for all or specific event types."""
         try:
             self._action('purge', **kwargs)
