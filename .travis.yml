@@ -22,6 +22,9 @@ addons:
     packages:
     - rabbitmq-server
 
+service:
+  - redis-server
+
 env:
   - REQUIREMENTS=lowest
   - REQUIREMENTS=release DEPLOY=true

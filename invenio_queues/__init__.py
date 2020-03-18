@@ -18,100 +18,95 @@ Getting started
 ---------------
 
 You will learn how to register queues and to interact with it. To begin with,
-you need to setup your virtual environment and install this module.
+we assume that you already have setup your virtual environment and install
+the module:
 
-You need an application to work with, that can be created with the following
-commands in a Python shell:
+You now need an application to work with, that can be created with the
+following commands in a Python shell:
 
->>> from flask import current_app
+.. code-block:: python
+
+   from flask import Flask
+   app = Flask('myapp')
 
 You can then initialize the module:
 
->>> from invenio_queues.ext import InvenioQueues
->>> ext_queues = InvenioQueues(app)
+.. code-block:: python
+
+   from invenio_queues.ext import InvenioQueues
+   ext_queues = InvenioQueues(app)
+   app.app_context().push()
 
 In our example, we are using RabbitMQ as a broker, which can be configured
-as follow:
+as follow::
 
->>> current_app.config['QUEUES_BROKER_URL'] = 'amqp://localhost:5672'
+    app.config['QUEUES_BROKER_URL'] = 'amqp://localhost:5672'
 
 Register queues
 ^^^^^^^^^^^^^^^
 
-To register queues, you need to start by creating an exchange for the queues:
+To register queues, need to add it to the configuration.
 
 .. code-block:: python
 
    from kombu import Exchange
 
-   default_exchange = Exchange(
-       'example',
-       type='direct',
-       delivery_mode='transient',  # in-memory queue
-   )
+   app.config['QUEUES_DEFINITIONS'] = [[
+       {
+           'name': 'notifications',
+           'exchange': Exchange(
+               'example',
+               type='direct',
+               delivery_mode='transient',  # in-memory queue
+           ),
+       },
+   ]]
 
-You can now configure the queues as followed:
-
-.. code-block:: python
-
-   from invenio_queues.proxies import current_queues
-   from invenio_queues.queue import Queue
-
-   current_queues.queues = dict()
-   connection_pool = current_app.config.get('QUEUES_CONNECTION_POOL')
-
-   current_queues.queues['notifications'] = Queue(
-       default_exchange,
-       'notifications',
-       connection_pool
-   )
-
-   current_queues.queues['jobs'] = Queue(
-       default_exchange,
-       'jobs',
-       connection_pool
-   )
+For more information about how to set an Exchange:
+(https://docs.celeryproject.org/projects/kombu/en/stable/reference/kombu.html#exchange)
 
 Create queues
 ^^^^^^^^^^^^^
 
-Now that the queues are configured, you can create them:
+Now that the queues are configured, you can create them::
 
->>> current_queues.declare()
+    ext_queues.declare()
 
-If you want to delete them, this can be done in the same way:
+If you want to delete them, this can be done in the same way::
 
->>> current_queues.delete()
+    ext_queues.delete()
 
 Access queues
 ^^^^^^^^^^^^^
 
-You can list the available queues by using the command line interface
+You can list the available queues by using::
 
->>> invenio queues list
+    ext_queues.queues
 
-or programmatically
+Suppose you have a queue with name "notifications" you can directly access it
+by name::
 
->>> from invenio_queues.proxies import current_queues
->>> current_queues.queues.key()
-
-Suppose you have a queue with name "my_queue" you can directly access it by name
-
->>> my_queue = current_queues.queues["my_queue"]
+    notifications_queue = ext_queues.queues["notifications"]
 
 
 Publish events
 ^^^^^^^^^^^^^^
 
-After we have defined and instantiated (declare) our Queue we can start using it.
+After we have defined and instantiated (declare) our Queue we can start using
+it.
 This operation pushes an event or events to the queue:
 
 .. code-block:: python
 
-    # NOTE: publish expects and array of events
+    events = [
+        {
+            'user_id': 123,
+            'type': 'record-published',
+            'record_id': '1234-5678'
+        }
+    ]
 
-    events = [1, 2, 3]
-    current_queues.queues["my_queue"].publish(events)
+    notifications_queue.publish(events)
 
 
 Comsume events
@@ -122,8 +117,19 @@ The consume method of the queue will return a generator for the events:
 
 .. code-block:: python
 
-    queue_gen = current_queues.queues["my_queue"].consume()
+    queue_gen = notifications_queue.consume()
     list(queue_gen)
+
+You can as well add this in a task like:
+
+.. code-block:: python
+
+   for msg in notifications_queue.consume():
+       if msg['type'] == 'record-published':
+           user = fetch_user(msg['user_id'])
+           send_email(
+               user.email, "New record {record_id} was published".format(**msg)
+            )
 
 """
 

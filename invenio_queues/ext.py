@@ -10,6 +10,8 @@
 
 from __future__ import absolute_import, print_function
 
+from itertools import chain
+
 from werkzeug.utils import cached_property
 
 from . import config
@@ -32,12 +34,17 @@ class _InvenioQueuesState(object):
         from pkg_resources import iter_entry_points
         if self._queues is None:
             self._queues = dict()
-            for ep in iter_entry_points(group=self.entry_point_group):
-                for cfg in ep.load()():
+            from_entry_point = [
+                ep.load()()
+                for ep in iter_entry_points(group=self.entry_point_group)
+            ]
+
+            for queue in chain(
+                    from_entry_point, [self.app.config['QUEUES_DEFINITIONS']]):
+                for cfg in queue:
                     if cfg['name'] in self._queues:
                         raise DuplicateQueueError(
-                            'Duplicate queue {0} in entry point '
-                            '{1}'.format(cfg['name'], ep.name))
+                            'Duplicate queue {0} found'.format(cfg['name']))
 
                     self._queues[cfg['name']] = Queue(
                         cfg['exchange'], cfg['name'], self.connection_pool
@@ -76,16 +83,18 @@ class InvenioQueues(object):
 
     def __getattr__(self, name):
         """Proxy to state object."""
-        return getattr(self._state, name, None)
+        return getattr(object.__getattribute__(self, "_state"), name)
 
     def init_app(self, app, entry_point_group='invenio_queues.queues'):
         """Initialize application."""
         self.init_config(app)
-        app.extensions['invenio-queues'] = _InvenioQueuesState(
+        state = _InvenioQueuesState(
             app,
             app.config['QUEUES_CONNECTION_POOL'],
             entry_point_group=entry_point_group
         )
+        self._state = state
+        app.extensions['invenio-queues'] = state
         return app
 
     def init_config(self, app):

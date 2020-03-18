@@ -15,7 +15,6 @@ from kombu.pools import connections
 
 def get_connection_pool():
     """Retrieve the broker connection pool."""
-    # NOTE: Allow invenio-queues to have a different broker than default.
     broker_url = current_app.config.get('QUEUES_BROKER_URL') or \
         current_app.config.get('BROKER_URL', 'amqp://')
     return connections[Connection(broker_url)]

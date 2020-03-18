@@ -11,11 +11,15 @@
 from .utils import get_connection_pool
 
 QUEUES_BROKER_URL = None
-"""Provide a specific broker_url for queues.
+"""Broker URL for queues.
 
-If the variable is not configured it falls back to the default BROKER_URL of
-our application.
+If the variable is not configured it falls back to the default ``BROKER_URL``
+of our application. For more information about how to define your broker here:
+https://kombu.readthedocs.io/en/latest/reference/kombu.connection.html#connection
 """
 
 QUEUES_CONNECTION_POOL = get_connection_pool
 """Default queues connection pool."""
+
+QUEUES_DEFINITIONS = []
+"""Static queue definitions."""
