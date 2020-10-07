@@ -16,18 +16,12 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'check-manifest>=0.25',
-    'coverage>=4.0',
-    'isort>=4.3.21',
-    'pydocstyle>=1.0.0',
-    'pytest-cov>=1.8.0',
-    'pytest-pep8>=1.0.6',
-    'pytest>=3.8.1,<4',
+    'pytest-invenio>=1.4.0',
 ]
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.5.1',
+        'Sphinx>=3',
     ],
     'tests': tests_require,
 }
@@ -36,9 +30,7 @@ extras_require['all'] = []
 for reqs in extras_require.values():
     extras_require['all'].extend(reqs)
 
-setup_requires = [
-    'pytest-runner>=2.6.2',
-]
+setup_requires = []
 
 install_requires = [
     'invenio-base>=1.2.2',
