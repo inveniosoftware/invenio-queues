@@ -10,8 +10,8 @@
  Invenio-Queues
 ================
 
-.. image:: https://img.shields.io/travis/inveniosoftware/invenio-queues.svg
-        :target: https://travis-ci.org/inveniosoftware/invenio-queues
+.. image:: https://github.com/inveniosoftware/invenio-queues/workflows/CI/badge.svg
+        :target: https://github.com/inveniosoftware/invenio-queues/actions?query=workflow%3ACI
 
 .. image:: https://img.shields.io/coveralls/inveniosoftware/invenio-queues.svg
         :target: https://coveralls.io/r/inveniosoftware/invenio-queues
