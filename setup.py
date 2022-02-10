@@ -16,7 +16,7 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'pytest-invenio>=1.4.0'
+    'pytest-invenio>=1.4.2'
 ]
 
 extras_require = {
@@ -33,8 +33,8 @@ for reqs in extras_require.values():
 setup_requires = []
 
 install_requires = [
-    'invenio-base>=1.2.2',
-    'invenio-celery>=1.2.0',
+    'invenio-base>=1.2.5',
+    'invenio-celery>=1.2.4',
     'redis>=3.2.1',
 ]
 
