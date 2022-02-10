@@ -32,7 +32,7 @@ jobs:
           python-version: [3.7, 3.8, 3.9]
           requirements-level: [min, pypi]
           cache-service: [redis]
-          mq-service: [rabbitmq, redis]
+          mq-service: [rabbitmq]
           exclude:
           - python-version: 3.8
             requirements-level: min
