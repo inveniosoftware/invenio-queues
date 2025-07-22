@@ -36,8 +36,8 @@ def remove_queues(app):
 def mock_iter_entry_points_factory(data):
     """Create a mock iter_entry_points function."""
 
-    def entrypoints(group, name=None):
-        if group == "invenio_queues.queues":
+    def entrypoints(group=None, name=None):
+        if group is None or group == "invenio_queues.queues":
             for entrypoint in data:
                 yield entrypoint
         else:
