@@ -54,7 +54,7 @@ def MockEntryPoint():
     return namedtuple("MockEntryPoint", ["name", "value", "group", "load"])
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def test_queues_entrypoints(app, MockEntryPoint):
     """Declare some queues by mocking the invenio_queues.queues entrypoint.
 
@@ -83,7 +83,7 @@ def test_queues_entrypoints(app, MockEntryPoint):
             remove_queues(app)
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def test_queues(app, test_queues_entrypoints):
     """Declare test queues."""
     with app.app_context():
