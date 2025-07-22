@@ -8,10 +8,12 @@
 
 """Pytest configuration."""
 
+from collections import namedtuple
 from unittest.mock import patch
 
 import pytest
 from flask import Flask
+from invenio_base.utils import entry_points
 from kombu import Exchange
 
 MOCK_MQ_EXCHANGE = Exchange(
@@ -33,40 +35,48 @@ def remove_queues(app):
 
 def mock_iter_entry_points_factory(data):
     """Create a mock iter_entry_points function."""
-    from pkg_resources import iter_entry_points
 
     def entrypoints(group, name=None):
         if group == "invenio_queues.queues":
             for entrypoint in data:
                 yield entrypoint
         else:
-            for x in iter_entry_points(group=group, name=name):
-                yield x
+            for x in entry_points(group=group):
+                if name is None or x.name == name:
+                    yield x
 
     return entrypoints
 
 
+@pytest.fixture
+def MockEntryPoint():
+    """Mock entry point for testing."""
+    return namedtuple("MockEntryPoint", ["name", "value", "group", "load"])
+
+
 @pytest.yield_fixture()
-def test_queues_entrypoints(app):
+def test_queues_entrypoints(app, MockEntryPoint):
     """Declare some queues by mocking the invenio_queues.queues entrypoint.
 
     It yields a list like [{name: queue_name, exchange: conf}, ...].
     """
-    from pkg_resources import EntryPoint
-
     data = []
     result = []
     for idx in range(5):
         queue_name = "queue{}".format(idx)
-        entrypoint = EntryPoint(queue_name, queue_name)
         conf = dict(name=queue_name, exchange=MOCK_MQ_EXCHANGE)
-        entrypoint.load = lambda conf=conf: (lambda: [conf])
+        entrypoint = MockEntryPoint(
+            name=queue_name,
+            value=queue_name,
+            group="invenio_queues.queues",
+            load=lambda conf=conf: (lambda: [conf]),
+        )
         data.append(entrypoint)
         result.append(conf)
 
     entrypoints = mock_iter_entry_points_factory(data)
 
-    with patch("pkg_resources.iter_entry_points", entrypoints):
+    with patch("importlib.metadata.entry_points", entrypoints):
         try:
             yield result
         finally:
