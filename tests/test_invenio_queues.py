@@ -13,11 +13,9 @@ from unittest.mock import patch
 import pytest
 from conftest import MOCK_MQ_EXCHANGE, mock_iter_entry_points_factory
 from flask import Flask
-from pkg_resources import EntryPoint
 
 from invenio_queues import InvenioQueues, current_queues
 from invenio_queues.errors import DuplicateQueueError
-from invenio_queues.queue import Queue
 
 
 def test_version():
@@ -40,20 +38,24 @@ def test_init():
     assert "invenio-queues" in app.extensions
 
 
-def test_duplicate_queue(app):
+def test_duplicate_queue(app, MockEntryPoint):
     """Check that duplicate queues raise an exception."""
     with app.app_context():
         data = []
         for idx in range(2):
             queue_name = "myqueue"
-            entrypoint = EntryPoint(queue_name, queue_name)
             conf = dict(name=queue_name, exchange=MOCK_MQ_EXCHANGE)
-            entrypoint.load = lambda conf=conf: (lambda: [conf])
+            entrypoint = MockEntryPoint(
+                name=queue_name,
+                value=queue_name,
+                group="invenio_queues.queues",
+                load=lambda conf=conf: (lambda: [conf]),
+            )
             data.append(entrypoint)
 
         entrypoints = mock_iter_entry_points_factory(data)
 
-        with patch("pkg_resources.iter_entry_points", entrypoints):
+        with patch("importlib.metadata.entry_points", entrypoints):
             with pytest.raises(DuplicateQueueError):
                 current_queues.queues()
 
