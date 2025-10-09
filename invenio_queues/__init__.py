@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2022 CERN.
+# Copyright (C) 2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -136,7 +137,7 @@ You can as well add this in a task like:
 from .ext import InvenioQueues
 from .proxies import current_queues
 
-__version__ = "1.0.1"
+__version__ = "2.0.0"
 
 __all__ = (
     "__version__",
