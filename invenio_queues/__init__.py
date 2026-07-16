@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2016-2022 CERN.
 # SPDX-FileCopyrightText: 2025 Graz University of Technology.
+# SPDX-FileCopyrightText: 2026 TU Wien.
 # SPDX-License-Identifier: MIT
 
 
@@ -132,7 +133,7 @@ You can as well add this in a task like:
 from .ext import InvenioQueues
 from .proxies import current_queues
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 __all__ = (
     "__version__",
